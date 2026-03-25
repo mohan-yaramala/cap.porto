@@ -6,7 +6,7 @@ import {
   DirectionalLight,
   Vector3,
 } from "three";
-import Experience from "./Experience";
+import Experience from "./Experience.js";
 import cubeInfo from "../../static/assets/json/cubeInfo.json";
 import { RUBIK_ROTATION_Y } from "./constants.js";
 
