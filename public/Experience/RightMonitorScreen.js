@@ -57,7 +57,7 @@ export default class RightMonitorScreen {
 
     const iframe = document.createElement("iframe");
 
-    iframe.public = RIGHT_MONITOR_IFRAME_SRC;
+    iframe.src = RIGHT_MONITOR_IFRAME_SRC;
     iframe.style.width = this.screenMonitorSize.width + "px";
     iframe.style.height = this.screenMonitorSize.height + "px";
     iframe.style.padding = MONITOR_IFRAME_PADDING;

@@ -61,7 +61,7 @@ export default class LeftMonitorScreen {
 
     const iframe = document.createElement("iframe");
 
-    iframe.public = LEFT_MONITOR_IFRAME_SRC;
+    iframe.src = LEFT_MONITOR_IFRAME_SRC;
     iframe.style.width = this.screenMonitorSize.width + "px";
     iframe.style.height = this.screenMonitorSize.height + "px";
     iframe.style.padding = MONITOR_IFRAME_PADDING;
