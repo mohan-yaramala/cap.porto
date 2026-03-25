@@ -1,10 +1,9 @@
 import {
-  Vector2,
-  MeshBasicMaterial,
-  PlaneGeometry,
-  DoubleSide,
-  NoBlending,
   Mesh,
+  PlaneGeometry,
+  NoBlending,
+  Vector2,
+  MeshLambertMaterial,
 } from "three";
 import Experience from "./Experience.js";
 import { CSS3DObject } from "three/examples/jsm/renderers/CSS3DRenderer.js";
@@ -12,77 +11,80 @@ import {
   MONITOR_SCREEN_WIDTH,
   MONITOR_SCREEN_HEIGHT,
   MONITOR_IFRAME_PADDING,
-  RIGHT_MONITOR_IFRAME_SRC,
-  RIGHT_MONITOR_CSS_OBJECT_POSITION,
-  RIGHT_MONITOR_CSS_OBJECT_SCALE,
-  RIGHT_MONITOR_CSS_OBJECT_ROTATION_Y,
+  LEFT_MONITOR_IFRAME_SRC,
+  LEFT_MONITOR_CSS_OBJECT_POSITION,
+  LEFT_MONITOR_CSS_OBJECT_SCALE,
 } from "./constants.js";
 
-export default class RightMonitorScreen {
+export default class LeftMonitorScreen {
   constructor() {
     this.experience = new Experience();
     this.webglElement = this.experience.webglElement;
-    this.cssRightMonitorScene = this.experience.cssRightMonitorScene;
+    this.cssLeftMonitor = this.experience.cssLeftMonitor;
+    this.cssLeftMonitorScene = this.experience.cssLeftMonitorScene;
     this.resources = this.experience.resources;
-    this.scene = this.experience.scene;
     this.renderer = this.experience.renderer.instance;
-    this.camera = this.experience.camera;
-    this.mouse = this.experience.mouse;
-    this.materialRightMonitor = this.experience.world.baked.model.material2;
+    this.scene = this.experience.scene;
     this.raycaster = this.experience.raycaster;
+    this.mouse = this.experience.mouse;
+    this.navigation = this.experience.navigation;
+    this.materialLeftMonitor = this.experience.world.baked.model.material2;
+    this.isActive = false;
+    this.camera = this.experience.camera;
+    this.audioManager = this.experience.world.audioManager;
+    this.objectRaycasted = null;
     this.screenMonitorSize = new Vector2(
       MONITOR_SCREEN_WIDTH,
       MONITOR_SCREEN_HEIGHT
     );
     this.model = {};
-    this.audioManager = this.experience.world.audioManager;
     this.setModel();
-    this.setRightMonitorScreen();
+    this.setLeftMonitorScreen();
   }
+
   setModel() {
-    this.model.mesh = this.resources.items.rightMonitor.scene;
+    this.model.mesh = this.resources.items.leftMonitor.scene;
+
     this.model.mesh.traverse((child) => {
       if (child.isMesh) {
-        child.material = this.materialRightMonitor;
+        child.material = this.materialLeftMonitor;
       }
     });
-    this.model.mesh.name = "rightMonitor";
+    this.model.mesh.name = "leftMonitor";
     this.scene.add(this.model.mesh);
   }
 
-  setRightMonitorScreen() {
+  setLeftMonitorScreen() {
     const container = document.createElement("div");
     container.style.width = this.screenMonitorSize.width + "px";
     container.style.height = this.screenMonitorSize.height + "px";
 
     const iframe = document.createElement("iframe");
 
-    iframe.src = RIGHT_MONITOR_IFRAME_SRC;
+    iframe.public = LEFT_MONITOR_IFRAME_SRC;
     iframe.style.width = this.screenMonitorSize.width + "px";
     iframe.style.height = this.screenMonitorSize.height + "px";
     iframe.style.padding = MONITOR_IFRAME_PADDING;
 
     iframe.style.transparent = true;
-    iframe.id = "right-monitor-screen";
+    iframe.id = "left-monitor-screen";
     iframe.style.boxSizing = "border-box";
     iframe.style.background = "black";
     container.appendChild(iframe);
 
     const css3dobject = new CSS3DObject(container);
 
-    css3dobject.position.copy(RIGHT_MONITOR_CSS_OBJECT_POSITION);
-    css3dobject.scale.copy(RIGHT_MONITOR_CSS_OBJECT_SCALE);
-    css3dobject.rotation.y = RIGHT_MONITOR_CSS_OBJECT_ROTATION_Y;
-    this.cssRightMonitorScene.add(css3dobject);
+    css3dobject.position.copy(LEFT_MONITOR_CSS_OBJECT_POSITION);
+    css3dobject.scale.copy(LEFT_MONITOR_CSS_OBJECT_SCALE);
+    this.cssLeftMonitorScene.add(css3dobject);
 
-    const material = new MeshBasicMaterial({
+    const material = new MeshLambertMaterial({
       color: "black",
-      side: DoubleSide,
       opacity: 0,
       transparent: true,
       blending: NoBlending,
     });
-    // Create plane geometry
+
     const geometry = new PlaneGeometry(
       this.screenMonitorSize.width,
       this.screenMonitorSize.height
@@ -92,7 +94,7 @@ export default class RightMonitorScreen {
     screen.position.copy(css3dobject.position);
     screen.rotation.copy(css3dobject.rotation);
     screen.scale.copy(css3dobject.scale);
-    screen.name = "rightMonitorScreen";
+    screen.name = "leftMonitorScreen";
     this.model.mesh.add(screen);
   }
 
@@ -102,6 +104,7 @@ export default class RightMonitorScreen {
     this.onMouseMove();
     this.isActive = true;
   }
+
   deactivateControls() {
     window.removeEventListener("pointermove", this.onMouseMove, false);
     window.removeEventListener("message", this.receiveMessage, false);
@@ -109,36 +112,27 @@ export default class RightMonitorScreen {
   }
 
   receiveMessage = (event) => {
-    if (event.data == "footstep01") {
-      this.audioManager.playSingleAudio("footstep01", 0.3);
-    } else if (event.data == "footstep02") {
-      this.audioManager.playSingleAudio("footstep02", 0.3);
-    } else if (event.data == "footstep03") {
-      this.audioManager.playSingleAudio("footstep03", 0.3);
-    } else if (event.data == "vase") {
-      this.audioManager.playSingleAudio("vase_break", 0.3);
-    } else if (event.data == "door") {
-      this.audioManager.playSingleAudio("door", 1);
-    } else if (event.data == "trophy") {
-      this.audioManager.playSingleAudio("trophy", 7);
-    } else if (event.data == "trophy_platinum") {
-      this.audioManager.playSingleAudio("trophy_platinum", 0.5);
-    } else if (event.data == "start") {
-      this.audioManager.playSingleAudio("start", 0.3);
+    if (event.data == "Projects") {
+      this.navigation.flyToPosition("rightMonitor");
+    } else if (event.data == "mousedown") {
+      this.audioManager.playSingleAudio("mouseclick", 1);
+    } else if (event.data == "mouseup") {
+      this.audioManager.playSingleAudio("mouserelease", 1);
     }
   };
+
   onMouseMove = () => {
     if (
       this.objectRaycasted &&
       this.objectRaycasted.object &&
-      this.objectRaycasted.object.name == "rightMonitorScreen"
+      this.objectRaycasted.object.name == "leftMonitorScreen"
     ) {
       this.experience.navigation.orbitControls.enableDamping = false;
       this.experience.navigation.orbitControls.enabled = false;
       this.webglElement.style.pointerEvents = "none";
     } else {
-      this.experience.navigation.orbitControls.enabled = true;
       this.experience.navigation.orbitControls.enableDamping = true;
+      this.experience.navigation.orbitControls.enabled = true;
       this.webglElement.style.pointerEvents = "auto";
     }
   };

@@ -59,7 +59,7 @@ export default class ArcadeScreen {
 
     const iframe = document.createElement("iframe");
 
-    iframe.src = ARCADE_IFRAME_SRC;
+    iframe.public = ARCADE_IFRAME_SRC;
     iframe.style.width = this.screenSize.width + "px";
     iframe.style.height = this.screenSize.height + "px";
     iframe.style.padding = ARCADE_IFRAME_PADDING;

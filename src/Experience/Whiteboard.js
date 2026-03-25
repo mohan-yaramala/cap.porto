@@ -75,7 +75,7 @@ export default class Whiteboard {
     this.model.mesh.add(planeMesh);
 
     const image = this.resources.items.texture_paint.source.data;
-    image.src = image.src;
+    image.public = image.public;
 
     this.drawingCanvas = document.getElementById("drawing-canvas");
     this.drawingContext = this.drawingCanvas.getContext("2d");

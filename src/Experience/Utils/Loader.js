@@ -62,7 +62,7 @@ export default class Resources extends EventEmitter {
           this.fileLoadEnd(_resource, image);
         });
 
-        image.src = _resource.source;
+        image.public = _resource.source;
       },
     });
     // CubeTexture
